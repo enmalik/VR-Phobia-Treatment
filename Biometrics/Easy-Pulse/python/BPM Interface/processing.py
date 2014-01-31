@@ -20,7 +20,7 @@ import wx
 import gui
 import functions
 
-stdThresholdLow = 15
+stdThresholdLow = 5
 stdThresholdHigh = 500
 
 calibrateLow = 0
@@ -275,12 +275,30 @@ class CalibrateThread(Thread):
             else:
                 statusCount = 0
 
-            if statusCount == 15:
+            # if statusCount == 15:
+            #     global calibrateLow, calibrateHigh, calibrateMean
+
+            #     calibrateLow = np.min(calibrateBPM[-10:-1])
+            #     calibrateHigh = np.max(calibrateBPM[-10:-1])
+            #     calibrateMean = np.mean(calibrateBPM[-10:-1])
+
+            #     print "min: ", calibrateLow
+            #     print "max: ", calibrateHigh
+            #     print "mean: ", calibrateMean
+
+            #     wx.PostEvent(self._notify_window, CalibrateEvent(1))
+            #     arduino.close()
+
+            #     gui.worker = None
+            #     return
+
+            #for demo calibration set to 5
+            if statusCount == 5:
                 global calibrateLow, calibrateHigh, calibrateMean
 
-                calibrateLow = np.min(calibrateBPM[-10:-1])
-                calibrateHigh = np.max(calibrateBPM[-10:-1])
-                calibrateMean = np.mean(calibrateBPM[-10:-1])
+                calibrateLow = np.min(calibrateBPM[-3:-1])
+                calibrateHigh = np.max(calibrateBPM[-3:-1])
+                calibrateMean = np.mean(calibrateBPM[-3:-1])
 
                 print "min: ", calibrateLow
                 print "max: ", calibrateHigh
