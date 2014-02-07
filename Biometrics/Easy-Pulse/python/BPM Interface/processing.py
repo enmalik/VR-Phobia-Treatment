@@ -27,6 +27,9 @@ calibrateLow = 0
 calibrateHigh = 0
 calibrateMean = 0
 
+# sample delay in seconds
+sampleDelay = 5
+
 def getCalibrateLow():
     return calibrateLow
 
@@ -38,7 +41,7 @@ def getCalibrateMean():
 
 def arduinoRead():
     while True:
-        time.sleep(2)
+        time.sleep(sampleDelay)
 
         t, v = [], []
         data = arduino.read(arduino.inWaiting())
@@ -112,7 +115,7 @@ def calibrate():
     statusCount = 0
 
     while True:
-        time.sleep(2)
+        time.sleep(sampleDelay)
 
         t, v = [], []
         data = arduino.read(arduino.inWaiting())
@@ -187,9 +190,18 @@ def maxima(vals):
 	return maxVals
 
 def gaussSmooth(vals):
-	b = gaussian(50, 2)
-	smoothVals = filters.convolve1d(vals, b/b.sum())
-	return smoothVals
+    numVals = len(vals)
+
+    if numVals == 0:
+        numVals = 1
+
+    print "number of values: ", numVals
+
+    print "VALUES#########\n", vals
+
+    b = gaussian(numVals, 2)
+    smoothVals = filters.convolve1d(vals, b/b.sum())
+    return smoothVals
 
 def sampleStats(maximaIndexes, times):
 	noPeaks = len(maximaIndexes)
@@ -239,7 +251,7 @@ class CalibrateThread(Thread):
                 self._want_abort = 0
                 break
 
-            time.sleep(2)
+            time.sleep(sampleDelay)
 
             t, v = [], []
 
@@ -251,10 +263,16 @@ class CalibrateThread(Thread):
                 values = line.split()
                 values = map(int, values)
 
+                print "original values: ", values
+
                 # append if there are both values, otherwise it breaks
                 if len(values) == 2:
-                    t.append(values[0])
-                    v.append(values[1])
+                    if len(t) > 0 and values[0] < t[-1]:
+                        print "########################\nCAUGHT SOMETHING\n############################\n"
+                        continue
+                    else:
+                        t.append(values[0])
+                        v.append(values[1])
 
             vSmooth = gaussSmooth(v);
 
@@ -266,7 +284,7 @@ class CalibrateThread(Thread):
 
             status = 0 #0: not a good pulse. 1: good pulse.
 
-            print type(bpm)
+            print "TYPE: ", type(bpm)
             calibrateBPM.append(bpm)
             
             if vStd > stdThresholdLow and vStd < stdThresholdHigh and bpm > 20 and ibi < 3000:
@@ -293,12 +311,12 @@ class CalibrateThread(Thread):
             #     return
 
             #for demo calibration set to 5
-            if statusCount == 5:
+            if statusCount == 6:
                 global calibrateLow, calibrateHigh, calibrateMean
 
-                calibrateLow = np.min(calibrateBPM[-3:-1])
-                calibrateHigh = np.max(calibrateBPM[-3:-1])
-                calibrateMean = np.mean(calibrateBPM[-3:-1])
+                calibrateLow = np.min(calibrateBPM[-4-1])
+                calibrateHigh = np.max(calibrateBPM[-4:-1])
+                calibrateMean = np.mean(calibrateBPM[-4:-1])
 
                 print "min: ", calibrateLow
                 print "max: ", calibrateHigh
@@ -310,10 +328,10 @@ class CalibrateThread(Thread):
                 gui.worker = None
                 return
 
-            print status
-            print vStd
-            print bpm
-            print ibi           
+            print "STATUS: ", status
+            print "STD: ", vStd
+            print "BPM: ", bpm
+            print "IBI: ", ibi           
 
     def abort(self):
         self._want_abort = 1
@@ -353,12 +371,14 @@ class BPMThread(Thread):
                 functions.singleRunPlot("writefile.txt", getCalibrateLow(), getCalibrateHigh(), getCalibrateMean())
                 break
 
-            time.sleep(2)
+            time.sleep(sampleDelay)
 
             t, v = [], []
             data = arduino.read(arduino.inWaiting())
             sample = data.split('\n')
             del sample[-1]
+
+            numIssues = 0
 
             for line in sample:
                 values = line.split()
@@ -370,9 +390,18 @@ class BPMThread(Thread):
                 # print "v val 1: ", values[1]          
 
                 # append if there are both values, otherwise it breaks
+
+                print "original values: ", values
+
                 if len(values) == 2:
-                    t.append(values[0])
-                    v.append(values[1])
+                    if len(t) > 0 and values[0] < t[-1]:
+                        print "########################\nCAUGHT SOMETHING\n############################\n"
+                        numIssues += 1
+                        continue
+                    else:
+                        t.append(values[0])
+                        v.append(values[1])
+                        latestTime = values[0]
 
                 # if values[0] and values[1]:
                 #   t.append(values[0])
@@ -435,6 +464,12 @@ class BPMThread(Thread):
             writeFile.write(str(t[-1]) + "\t" + str(epochTime) + "\t" + str(epochDiff) + "\t" + str(bpm) + "\t" + str(ibi) + "\t" + str(status) + "\n");
 
             wx.PostEvent(self._notify_window, ResultEvent((str(bpm),str(ibi))))
+
+            if numIssues > 5:
+                arduino.close()
+                time.sleep(2)
+                arduino = serial.Serial('/dev/tty.usbmodem1421',115200)
+                time.sleep(2)
 
     def abort(self):
         self._want_abort = 1
