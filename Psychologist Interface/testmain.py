@@ -10,6 +10,8 @@ import datetime
 import re
 
 from threading import *
+
+appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App"
  
 class MainApp(pigui.PsychologistInterfaceFrame):
     # def OnInit(self):
@@ -26,16 +28,21 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.introPanel = PanelIntro(self)
         self.createPanel = PanelCreate(self)
         self.patientPanel = PanelPatient(self)
+        self.patientPanel.historyListPanel = PanelHistory(self.patientPanel.historyNotebookPanel)
 
         self.updatePanel("intro")
 
         self.introPanel.newCreatePatientBtn.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
         self.createPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelCreate )
+        self.createPanel.createPatientBtn.Bind( wx.EVT_BUTTON, self.createPatient )
 
     # def firstPanel(self, parent):
 
     def changeIntroPanel( self, event ):
         self.updatePanel("create")
+
+    def createPatient(self, event):
+        self.updatePanel("patient")
 
     def cancelCreate(self, event):
         self.updatePanel("intro")
@@ -120,6 +127,12 @@ class PanelCreate(pigui.CreatePatientPanel):
 
     def __init__(self, parent):
         pigui.CreatePatientPanel.__init__(self, parent)
+
+
+class PanelHistory(pigui.HistoryPanel):
+
+    def __init__(self, parent):
+        pigui.HistoryPanel.__init__(self, parent)
 
 
 
