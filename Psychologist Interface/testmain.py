@@ -3,6 +3,7 @@ sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
 
 import wx
 import pigui
+import os
 
 import serial
 import time
@@ -11,8 +12,13 @@ import re
 
 from threading import *
 
+resetTime = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
+
 appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
 patientDirectory = appDirectory + "Patients/"
+simDirectory = appDirectory + "Simulations/"
+
+patientList = ["Select Existing Patient"]
  
 class MainApp(pigui.PsychologistInterfaceFrame):
     # def OnInit(self):
@@ -22,7 +28,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
     #     self.frame = frame
     #     return True
 
-
+    global patientList
 
     def __init__(self, parent):
         pigui.PsychologistInterfaceFrame.__init__(self, parent)
@@ -33,14 +39,49 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.patientPanel.historyListPanel = PanelHistory(self.patientPanel.historyNotebookPanel)
         self.patientPanel.historyInfoPanel = PanelHistoryInfo(self.patientPanel.historyNotebookPanel)
 
+        self.loadUsers()
+
         self.updatePanel("intro")
         self.updateHistoryPanel("list");
 
         self.introPanel.newCreatePatientBtn.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
+        self.introPanel.patientChoice.Bind( wx.EVT_CHOICE, self.selectUser )
+
         self.createPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelCreate )
         self.createPanel.createPatientBtn.Bind( wx.EVT_BUTTON, self.createPatient )
 
     # def firstPanel(self, parent):
+
+    def loadUsers(self):
+        patientList.extend(os.listdir(patientDirectory))
+        self.introPanel.patientChoice.AppendItems(patientList)
+        print "loaded users"
+        print "patient list: ", patientList
+
+
+    def selectUser(self, event):
+        selectedUser = self.introPanel.patientChoice.GetStringSelection()
+        selectedIndex = self.introPanel.patientChoice.GetCurrentSelection()
+
+        print selectedUser
+        
+        if selectedIndex != 0:
+            self.updatePanel("patient")
+
+        self.resetIntroPanel()
+
+    def resetIntroPanel(self):
+        self.introPanel.patientChoice.SetSelection(0)
+
+    def resetCreatePanel(self):
+        self.createPanel.fnameTextCtrl.Clear()
+        self.createPanel.lnameTextCtrl.Clear()
+        self.createPanel.dobDatePicker.SetValue(resetTime)
+        self.createPanel.genderChoice.SetSelection(0)
+        self.createPanel.patientIdTextCtrl.Clear()
+        self.createPanel.notesTextCtrl.Clear()
+
+
 
     def changeIntroPanel( self, event ):
         self.updatePanel("create")
@@ -49,7 +90,10 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.updatePanel("patient")
 
     def cancelCreate(self, event):
+        print type(self.createPanel.dobDatePicker.GetValue())
+        self.resetCreatePanel()
         self.updatePanel("intro")
+
         # CREATE METHOD TO CLEAR ALL FIELDS
 
     def updatePanel(self, panel):

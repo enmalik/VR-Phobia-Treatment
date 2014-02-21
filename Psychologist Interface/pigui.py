@@ -83,18 +83,10 @@ class IntroPanel ( wx.Panel ):
         
         introSizer.AddSpacer( ( 0, 125), 0, 0, 5 )
         
-        gSizer3 = wx.GridSizer( 1, 2, 0, 25 )
-        
-        self.selectPatientText = wx.StaticText( self, wx.ID_ANY, u"Select Patient", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.selectPatientText.Wrap( -1 )
-        gSizer3.Add( self.selectPatientText, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
         patientChoiceChoices = []
-        self.patientChoice = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, patientChoiceChoices, 0 )
+        self.patientChoice = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 250,-1 ), patientChoiceChoices, 0 )
         self.patientChoice.SetSelection( 0 )
-        gSizer3.Add( self.patientChoice, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
-        introSizer.Add( gSizer3, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        introSizer.Add( self.patientChoice, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
         
         
         introSizer.AddSpacer( ( 0, 25), 0, 0, 5 )
