@@ -151,7 +151,7 @@ class introPanel ( wx.Panel ):
 class patientPanel ( wx.Panel ):
     
     def __init__( self, parent ):
-        wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.TAB_TRAVERSAL )
+        wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 800,600 ), style = wx.TAB_TRAVERSAL )
         
         patientProfileSizer = wx.BoxSizer( wx.VERTICAL )
         
@@ -159,7 +159,6 @@ class patientPanel ( wx.Panel ):
         self.notebookProfilePanel = wx.Panel( self.patientNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer101 = wx.BoxSizer( wx.VERTICAL )
         
-        bSizer101.SetMinSize( wx.Size( -1,550 ) ) 
         patientFieldsSizer = wx.FlexGridSizer( 7, 2, 20, 0 )
         patientFieldsSizer.SetFlexibleDirection( wx.BOTH )
         patientFieldsSizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
@@ -215,10 +214,10 @@ class patientPanel ( wx.Panel ):
         self.notesTextCtrl = wx.TextCtrl( self.notebookProfilePanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,100 ), wx.TE_MULTILINE )
         patientFieldsSizer.Add( self.notesTextCtrl, 1, wx.ALL|wx.EXPAND, 5 )
         
-        bSizer101.Add( patientFieldsSizer, 1, wx.EXPAND, 5 )
+        bSizer101.Add( patientFieldsSizer, 0, wx.EXPAND, 5 )
         
         self.m_button21 = wx.Button( self.notebookProfilePanel, wx.ID_ANY, u"MyButton", wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer101.Add( self.m_button21, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        bSizer101.Add( self.m_button21, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
         
         self.notebookProfilePanel.SetSizer( bSizer101 )
         self.notebookProfilePanel.Layout()
@@ -239,7 +238,7 @@ class patientPanel ( wx.Panel ):
         bSizer10.Fit( self.historyNotebookPanel )
         self.patientNotebook.AddPage( self.historyNotebookPanel, u"History of Sessions", False )
         
-        patientProfileSizer.Add( self.patientNotebook, 1, wx.EXPAND |wx.ALL, 5 )
+        patientProfileSizer.Add( self.patientNotebook, 1, wx.ALL|wx.EXPAND, 5 )
         
         bSizer91 = wx.BoxSizer( wx.VERTICAL )
         
@@ -247,7 +246,6 @@ class patientPanel ( wx.Panel ):
         
         self.SetSizer( patientProfileSizer )
         self.Layout()
-        patientProfileSizer.Fit( self )
     
     def __del__( self ):
         pass

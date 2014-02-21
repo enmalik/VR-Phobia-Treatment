@@ -608,13 +608,13 @@
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
             <object class="wxBoxSizer" expanded="1">
-                <property name="minimum_size"></property>
+                <property name="minimum_size">-1,-1</property>
                 <property name="name">patientProfileSizer</property>
                 <property name="orient">wxVERTICAL</property>
                 <property name="permission">none</property>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxEXPAND | wxALL</property>
+                    <property name="flag">wxALL|wxEXPAND</property>
                     <property name="proportion">1</property>
                     <object class="wxNotebook" expanded="1">
                         <property name="bg"></property>
@@ -719,7 +719,7 @@
                                 <event name="OnSize"></event>
                                 <event name="OnUpdateUI"></event>
                                 <object class="wxBoxSizer" expanded="1">
-                                    <property name="minimum_size">-1,550</property>
+                                    <property name="minimum_size">-1,-1</property>
                                     <property name="name">bSizer101</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="permission">none</property>
@@ -1451,7 +1451,7 @@
                                     <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxALL|wxALIGN_CENTER_HORIZONTAL</property>
-                                        <property name="proportion">0</property>
+                                        <property name="proportion">1</property>
                                         <object class="wxButton" expanded="1">
                                             <property name="bg"></property>
                                             <property name="context_help"></property>
