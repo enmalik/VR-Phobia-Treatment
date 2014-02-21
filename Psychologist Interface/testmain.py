@@ -11,7 +11,8 @@ import re
 
 from threading import *
 
-appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App"
+appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
+patientDirectory = appDirectory + "Patients/"
  
 class MainApp(pigui.PsychologistInterfaceFrame):
     # def OnInit(self):
@@ -22,6 +23,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
     #     return True
 
 
+
     def __init__(self, parent):
         pigui.PsychologistInterfaceFrame.__init__(self, parent)
      
@@ -29,8 +31,10 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.createPanel = PanelCreate(self)
         self.patientPanel = PanelPatient(self)
         self.patientPanel.historyListPanel = PanelHistory(self.patientPanel.historyNotebookPanel)
+        self.patientPanel.historyInfoPanel = PanelHistoryInfo(self.patientPanel.historyNotebookPanel)
 
         self.updatePanel("intro")
+        self.updateHistoryPanel("list");
 
         self.introPanel.newCreatePatientBtn.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
         self.createPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelCreate )
@@ -48,27 +52,36 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.updatePanel("intro")
         # CREATE METHOD TO CLEAR ALL FIELDS
 
-    def updatePanel(self, show):
-        if show == "intro":
+    def updatePanel(self, panel):
+        if panel == "intro":
             width, height = 600, 400
             self.introPanel.Show()
             self.createPanel.Hide()
             self.patientPanel.Hide()
             self.setStaticSize(width, height)
-        elif show == "create":
+        elif panel == "create":
             width, height = 600, 400
             self.introPanel.Hide()
             self.createPanel.Show()
             self.patientPanel.Hide()
             self.setStaticSize(width, height)
-        elif show == "patient":
+        elif panel == "patient":
             width, height = 800, 600
             self.introPanel.Hide()
             self.createPanel.Hide()
             self.patientPanel.Show()
             self.setStaticSize(width, height)
-
         self.Layout()
+
+    def updateHistoryPanel(self, panel):
+        if panel == "list":
+            self.patientPanel.historyListPanel.Show()
+            self.patientPanel.historyInfoPanel.Hide()
+        elif panel == "info":
+            self.patientPanel.historyListPanel.Hide()
+            self.patientPanel.historyInfoPanel.Show()
+        self.Layout()
+
 
 
 
@@ -133,6 +146,11 @@ class PanelHistory(pigui.HistoryPanel):
 
     def __init__(self, parent):
         pigui.HistoryPanel.__init__(self, parent)
+
+class PanelHistoryInfo(pigui.HistoryInformationPanel):
+
+    def __init__(self, parent):
+        pigui.HistoryInformationPanel.__init__(self, parent)
 
 
 
