@@ -62,93 +62,131 @@ class PsychologistInterfaceFrame ( wx.Frame ):
     def firstPanel( self, event ):
         event.Skip()
 
-    def changeIntroPanel( self, event ):
-        event.Skip()
-    
-    def __del__( self ):
-        pass
-
-
-
-class introPanel ( wx.Panel ):
-    
-    def __init__( self, parent ):
-        wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 800,600 ), style = wx.TAB_TRAVERSAL )
-        
-        bSizer5 = wx.BoxSizer( wx.VERTICAL )
-        
-        self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, u"panel 1", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText1.Wrap( -1 )
-        bSizer5.Add( self.m_staticText1, 0, wx.ALL, 5 )
-        
-        self.m_button2 = wx.Button( self, wx.ID_ANY, u"MyButton", wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer5.Add( self.m_button2, 0, wx.ALL, 5 )
-        
-        self.SetSizer( bSizer5 )
-        self.Layout()
-
-        self.search_ctrl = wx.ComboBox(self, -1)
-        self.search_ctrl.SetMinSize((650, -1))
-        self.search_ctrl.SetSize((650, -1))
-        self.search_ctrl.SetHint("This is are hint text; once it is clear and you try to type something in it it will crash on Mac OS X")
-
-        
-        # Connect Events - now doing it in the main frame
-        # self.m_button2.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
-    
-    def __del__( self ):
-        pass
-    
-    
-    # Virtual event handlers, overide them in your derived class
     # def changeIntroPanel( self, event ):
     #     event.Skip()
-
-
-
-# class patientPanel ( wx.Panel ):
     
-#     def __init__( self, parent ):
-#         wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 800,600 ), style = wx.TAB_TRAVERSAL )
-        
-#         bSizer6 = wx.BoxSizer( wx.VERTICAL )
-        
-#         self.m_notebook1 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-#         self.m_panel2 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-#         bSizer8 = wx.BoxSizer( wx.VERTICAL )
-        
-#         self.m_staticText3 = wx.StaticText( self.m_panel2, wx.ID_ANY, u"panel 2", wx.DefaultPosition, wx.DefaultSize, 0 )
-#         self.m_staticText3.Wrap( -1 )
-#         bSizer8.Add( self.m_staticText3, 0, wx.ALL, 5 )
-        
-#         self.m_panel2.SetSizer( bSizer8 )
-#         self.m_panel2.Layout()
-#         bSizer8.Fit( self.m_panel2 )
-#         self.m_notebook1.AddPage( self.m_panel2, u"Patient Profile", False )
-#         self.m_panel3 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-#         bSizer9 = wx.BoxSizer( wx.VERTICAL )
-        
-#         self.m_panel3.SetSizer( bSizer9 )
-#         self.m_panel3.Layout()
-#         bSizer9.Fit( self.m_panel3 )
-#         self.m_notebook1.AddPage( self.m_panel3, u"Run New Session", False )
-#         self.m_panel4 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-#         bSizer10 = wx.BoxSizer( wx.VERTICAL )
-        
-#         self.m_panel4.SetSizer( bSizer10 )
-#         self.m_panel4.Layout()
-#         bSizer10.Fit( self.m_panel4 )
-#         self.m_notebook1.AddPage( self.m_panel4, u"History of Sessions", False )
-        
-#         bSizer6.Add( self.m_notebook1, 1, wx.EXPAND |wx.ALL, 5 )
-        
-#         self.SetSizer( bSizer6 )
-#         self.Layout()
-    
-#     def __del__( self ):
-#         pass
+    def __del__( self ):
+        pass
 
-class patientPanel ( wx.Panel ):
+
+
+class IntroPanel ( wx.Panel ):
+    
+    def __init__( self, parent ):
+        wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 600,400 ), style = wx.TAB_TRAVERSAL )
+        
+        introSizer = wx.BoxSizer( wx.VERTICAL )
+        
+        
+        introSizer.AddSpacer( ( 0, 150), 0, 0, 5 )
+        
+        gSizer3 = wx.GridSizer( 1, 2, 0, 25 )
+        
+        self.selectPatientText = wx.StaticText( self, wx.ID_ANY, u"Select Patient", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.selectPatientText.Wrap( -1 )
+        gSizer3.Add( self.selectPatientText, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        patientChoiceChoices = []
+        self.patientChoice = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, patientChoiceChoices, 0 )
+        self.patientChoice.SetSelection( 0 )
+        gSizer3.Add( self.patientChoice, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        introSizer.Add( gSizer3, 0, wx.EXPAND, 5 )
+        
+        
+        introSizer.AddSpacer( ( 0, 25), 0, 0, 5 )
+        
+        self.newCreatePatientBtn = wx.Button( self, wx.ID_ANY, u"Create Patient", wx.DefaultPosition, wx.DefaultSize, 0 )
+        introSizer.Add( self.newCreatePatientBtn, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        
+        self.SetSizer( introSizer )
+        self.Layout()
+    
+    def __del__( self ):
+        pass
+    
+    
+class CreatePatientPanel ( wx.Panel ):
+    
+    def __init__( self, parent ):
+        wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 600,400 ), style = wx.TAB_TRAVERSAL )
+        
+        patientSizer = wx.BoxSizer( wx.VERTICAL )
+        
+        patientFieldsSizer = wx.FlexGridSizer( 7, 2, 10, 20 )
+        patientFieldsSizer.SetFlexibleDirection( wx.BOTH )
+        patientFieldsSizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+        
+        
+        patientFieldsSizer.AddSpacer( ( 0, 3), 1, wx.EXPAND, 5 )
+        
+        
+        patientFieldsSizer.AddSpacer( ( 0, 3), 1, wx.EXPAND, 5 )
+        
+        self.fnameText = wx.StaticText( self, wx.ID_ANY, u"First Name*", wx.Point( -1,-1 ), wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.fnameText.Wrap( -1 )
+        patientFieldsSizer.Add( self.fnameText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.fnameTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        patientFieldsSizer.Add( self.fnameTextCtrl, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.lnameText = wx.StaticText( self, wx.ID_ANY, u"Last Name*", wx.DefaultPosition, wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.lnameText.Wrap( -1 )
+        patientFieldsSizer.Add( self.lnameText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.lnameTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        patientFieldsSizer.Add( self.lnameTextCtrl, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.dobText = wx.StaticText( self, wx.ID_ANY, u"Date of Birth*", wx.DefaultPosition, wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.dobText.Wrap( -1 )
+        patientFieldsSizer.Add( self.dobText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.dobDatePicker = wx.DatePickerCtrl( self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.Size( 400,-1 ), wx.DP_DEFAULT )
+        patientFieldsSizer.Add( self.dobDatePicker, 0, wx.ALL, 5 )
+        
+        self.genderText = wx.StaticText( self, wx.ID_ANY, u"Gender*", wx.DefaultPosition, wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.genderText.Wrap( -1 )
+        patientFieldsSizer.Add( self.genderText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        genderChoiceChoices = [ u"Male", u"Female" ]
+        self.genderChoice = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 400,-1 ), genderChoiceChoices, 0 )
+        self.genderChoice.SetSelection( 0 )
+        patientFieldsSizer.Add( self.genderChoice, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.patientIdText = wx.StaticText( self, wx.ID_ANY, u"Patient ID*", wx.DefaultPosition, wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.patientIdText.Wrap( -1 )
+        patientFieldsSizer.Add( self.patientIdText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.patientIdTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        patientFieldsSizer.Add( self.patientIdTextCtrl, 0, wx.ALL, 5 )
+        
+        self.notesText = wx.StaticText( self, wx.ID_ANY, u"Notes", wx.DefaultPosition, wx.Size( 125,-1 ), wx.ALIGN_CENTRE )
+        self.notesText.Wrap( -1 )
+        patientFieldsSizer.Add( self.notesText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        
+        self.notesTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,100 ), wx.TE_MULTILINE )
+        patientFieldsSizer.Add( self.notesTextCtrl, 0, wx.ALL, 5 )
+        
+        patientSizer.Add( patientFieldsSizer, 0, wx.EXPAND, 5 )
+        
+        patientBtnSizer = wx.GridSizer( 2, 2, 0, 0 )
+        
+        self.createPatientBtn = wx.Button( self, wx.ID_ANY, u"Create Patient", wx.DefaultPosition, wx.DefaultSize, 0 )
+        patientBtnSizer.Add( self.createPatientBtn, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+        
+        self.cancelPatientBtn = wx.Button( self, wx.ID_ANY, u"Cancel", wx.DefaultPosition, wx.DefaultSize, 0 )
+        patientBtnSizer.Add( self.cancelPatientBtn, 0, wx.ALL, 5 )
+        
+        patientSizer.Add( patientBtnSizer, 0, wx.EXPAND, 5 )
+        
+        self.SetSizer( patientSizer )
+        self.Layout()
+    
+    def __del__( self ):
+        pass
+
+
+class PatientPanel ( wx.Panel ):
     
     def __init__( self, parent ):
         wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 800,600 ), style = wx.TAB_TRAVERSAL )

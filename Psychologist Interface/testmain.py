@@ -22,40 +22,60 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
     def __init__(self, parent):
         pigui.PsychologistInterfaceFrame.__init__(self, parent)
-        self.SetSizeWH(800, 600)
-        self.panelOne = Panel1(self)
-        # self.panelTwo = Panel2(self)
-        # self.panelTwo.Hide()
+     
+        self.introPanel = PanelIntro(self)
+        self.createPanel = PanelCreate(self)
+        self.patientPanel = PanelPatient(self)
 
-        self.panelOne.m_button2.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
+        self.updatePanel("intro")
+
+        self.introPanel.newCreatePatientBtn.Bind( wx.EVT_BUTTON, self.changeIntroPanel )
+        self.createPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelCreate )
 
     # def firstPanel(self, parent):
 
     def changeIntroPanel( self, event ):
-        print "hi"
-        self.panelOne.Hide()
-        self.SetSizeWH(800, 600)
-        self.panelTwo = Panel2(self)
+        self.updatePanel("create")
 
-        # if self.panelOne.IsShown():
-        #     print "hi"
-        #     self.SetTitle("Panel Two Showing")
-        #     self.panelOne.Hide()
-        #     self.panelTwo.Show()
-        # else:
-        #     print "no"
-        #     self.SetTitle("Panel One Showing")
-        #     self.panelOne.Show()
-        #     self.panelTwo.Hide()
-        # self.Layout()
+    def cancelCreate(self, event):
+        self.updatePanel("intro")
+        # CREATE METHOD TO CLEAR ALL FIELDS
+
+    def updatePanel(self, show):
+        if show == "intro":
+            width, height = 600, 400
+            self.introPanel.Show()
+            self.createPanel.Hide()
+            self.patientPanel.Hide()
+            self.setStaticSize(width, height)
+        elif show == "create":
+            width, height = 600, 400
+            self.introPanel.Hide()
+            self.createPanel.Show()
+            self.patientPanel.Hide()
+            self.setStaticSize(width, height)
+        elif show == "patient":
+            width, height = 800, 600
+            self.introPanel.Hide()
+            self.createPanel.Hide()
+            self.patientPanel.Show()
+            self.setStaticSize(width, height)
+
+        self.Layout()
+
+
+
+    def setStaticSize(self, width, height):
+        self.SetSizeWH(width, height)
+        self.SetMaxSize((width, height))
 
 
     
 
-class Panel1(pigui.introPanel):
+class PanelIntro(pigui.IntroPanel):
 
     def __init__(self, parent):
-        pigui.introPanel.__init__(self, parent)
+        pigui.IntroPanel.__init__(self, parent)
 
     # def OnInit(self, parent):
     #     pigui.introPanel.__init__(self, parent)
@@ -74,10 +94,10 @@ class Panel1(pigui.introPanel):
     #         # self.PanelTwo.Hide()
     #     self.Layout()
 
-class Panel2(pigui.patientPanel):
+class PanelPatient(pigui.PatientPanel):
 
     def __init__(self, parent):
-        pigui.patientPanel.__init__(self, parent)
+        pigui.PatientPanel.__init__(self, parent)
 
     # def OnInit(self, parent):
     #     pigui.patientPanel.__init__(self, parent)
@@ -95,6 +115,12 @@ class Panel2(pigui.patientPanel):
     #         self.PanelOne.Show()
     #         self.PanelTwo.Hide()
     #     self.Layout()
+
+class PanelCreate(pigui.CreatePatientPanel):
+
+    def __init__(self, parent):
+        pigui.CreatePatientPanel.__init__(self, parent)
+
 
 
 
