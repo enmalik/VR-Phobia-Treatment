@@ -165,7 +165,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 }
 
                 with open(infoJsonPath, 'w') as f:
-                    json.dump(userData, f)
+                    json.dump(userData, f, indent=4)
+                    f.write('\n')
 
                 print userData
 
