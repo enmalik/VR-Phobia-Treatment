@@ -132,6 +132,8 @@ class PatientPanel ( wx.Panel ):
         patientFieldsSizer.Add( self.fnameText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.fnameTextCtrl = wx.TextCtrl( self.notebookProfilePanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.fnameTextCtrl.Enable( False )
+        
         patientFieldsSizer.Add( self.fnameTextCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.lnameText = wx.StaticText( self.notebookProfilePanel, wx.ID_ANY, u"Last Name*", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
@@ -139,6 +141,8 @@ class PatientPanel ( wx.Panel ):
         patientFieldsSizer.Add( self.lnameText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.lnameTextCtrl = wx.TextCtrl( self.notebookProfilePanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.lnameTextCtrl.Enable( False )
+        
         patientFieldsSizer.Add( self.lnameTextCtrl, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.dobText = wx.StaticText( self.notebookProfilePanel, wx.ID_ANY, u"Date of Birth*", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
@@ -187,21 +191,23 @@ class PatientPanel ( wx.Panel ):
         patientFieldsSizer1.SetFlexibleDirection( wx.BOTH )
         patientFieldsSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
         
-        self.simTitleText = wx.StaticText( self.sessionNotebookPanel, wx.ID_ANY, u"Title", wx.Point( -1,-1 ), wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
+        self.simText = wx.StaticText( self.sessionNotebookPanel, wx.ID_ANY, u"Simulation*", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
+        self.simText.Wrap( -1 )
+        patientFieldsSizer1.Add( self.simText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        simChoiceChoices = []
+        self.simChoice = wx.Choice( self.sessionNotebookPanel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 400,-1 ), simChoiceChoices, 0 )
+        self.simChoice.SetSelection( 0 )
+        patientFieldsSizer1.Add( self.simChoice, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.simTitleText = wx.StaticText( self.sessionNotebookPanel, wx.ID_ANY, u"Title*", wx.Point( -1,-1 ), wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.simTitleText.Wrap( -1 )
         patientFieldsSizer1.Add( self.simTitleText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.simTitleTextCtrl = wx.TextCtrl( self.sessionNotebookPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.simTitleTextCtrl.Enable( False )
+        
         patientFieldsSizer1.Add( self.simTitleTextCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
-        self.simText = wx.StaticText( self.sessionNotebookPanel, wx.ID_ANY, u"Simulation", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
-        self.simText.Wrap( -1 )
-        patientFieldsSizer1.Add( self.simText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
-        simChioceChoices = []
-        self.simChioce = wx.Choice( self.sessionNotebookPanel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 400,-1 ), simChioceChoices, 0 )
-        self.simChioce.SetSelection( 0 )
-        patientFieldsSizer1.Add( self.simChioce, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.simNotesText = wx.StaticText( self.sessionNotebookPanel, wx.ID_ANY, u"Notes", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.simNotesText.Wrap( -1 )
@@ -395,19 +401,23 @@ class HistoryInformationPanel ( wx.Panel ):
         patientFieldsSizer1.SetFlexibleDirection( wx.BOTH )
         patientFieldsSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
         
-        self.histInfoTitleText = wx.StaticText( self, wx.ID_ANY, u"Title", wx.Point( -1,-1 ), wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
+        self.histInfoSimText = wx.StaticText( self, wx.ID_ANY, u"Simulation*", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
+        self.histInfoSimText.Wrap( -1 )
+        patientFieldsSizer1.Add( self.histInfoSimText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.simTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.simTextCtrl.Enable( False )
+        
+        patientFieldsSizer1.Add( self.simTextCtrl, 0, wx.ALL, 5 )
+        
+        self.histInfoTitleText = wx.StaticText( self, wx.ID_ANY, u"Title*", wx.Point( -1,-1 ), wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.histInfoTitleText.Wrap( -1 )
         patientFieldsSizer1.Add( self.histInfoTitleText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
         
         self.histInfoTitleTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.histInfoTitleTextCtrl.Enable( False )
+        
         patientFieldsSizer1.Add( self.histInfoTitleTextCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
-        self.histInfoSimText = wx.StaticText( self, wx.ID_ANY, u"Simulation", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
-        self.histInfoSimText.Wrap( -1 )
-        patientFieldsSizer1.Add( self.histInfoSimText, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
-        self.histInfoSimTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
-        patientFieldsSizer1.Add( self.histInfoSimTextCtrl, 0, wx.ALL, 5 )
         
         self.histInfoNotesTexts = wx.StaticText( self, wx.ID_ANY, u"Notes", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.histInfoNotesTexts.Wrap( -1 )

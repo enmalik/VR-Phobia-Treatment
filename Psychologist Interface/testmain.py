@@ -5,6 +5,7 @@ import wx
 import pigui
 import os
 import json
+import time
 
 
 resetDate = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
@@ -12,10 +13,15 @@ resetDate = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
 appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
 patientDirectory = appDirectory + "Patients/"
 simDirectory = appDirectory + "Simulations/"
+sessionsDirectory = "Sessions/"
+jsonFileName = "info.json"
+sessionInfoJsonFileName = "sessionInfo.json"
+allSessionsFileName = "allsessions.txt"
 
-patientPath = []
+patientPath = ""
 
 patientList = []
+simList = []
  
 class MainApp(pigui.PsychologistInterfaceFrame):
     # def OnInit(self):
@@ -49,6 +55,11 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.createPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelCreate )
         self.createPanel.createPatientBtn.Bind( wx.EVT_BUTTON, self.createPatient )
 
+        self.patientPanel.updatePatientBtn.Bind( wx.EVT_BUTTON, self.updatePatientInfo )
+        self.patientPanel.simChoice.Bind( wx.EVT_CHOICE, self.simTitle )
+        self.patientPanel.simStartBtn.Bind( wx.EVT_BUTTON, self.startSimulation )
+
+
     # def firstPanel(self, parent):
 
     def setPanelTypes(self):
@@ -73,6 +84,21 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         print "loaded users"
         print "patient list: ", patientList
 
+    def loadSims(self):
+        self.patientPanel.simChoice.Clear()
+        global simList
+        simList = ["Select Simulation"]
+
+        for item in os.listdir(simDirectory):
+            if not item.startswith('.'):
+                simList.append(item)
+
+        # patientList.extend(os.listdir(patientDirectory))
+
+        self.patientPanel.simChoice.AppendItems(simList)
+        print "loaded simulations"
+        print "sim list: ", simList
+
 
     def selectPatient(self, event):
         selectedUser = self.introPanel.patientChoice.GetStringSelection()
@@ -84,7 +110,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         if selectedIndex != 0:
             global patientPath
             patientPath = patientDirectory + selectedUser + "/"
-            self.goToUser("patient", selectedUser)
+            self.goToPatient("patient", selectedUser)
 
         self.resetIntroPanel()
 
@@ -99,14 +125,15 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.createPanel.patientIdTextCtrl.Clear()
         self.createPanel.notesTextCtrl.Clear()
 
-    def goToUser(self, panel, user):
+    def goToPatient(self, panel, user):
         self.updatePanel(panel)
 
-        patientJson = patientPath + "info.json"
+        patientJson = patientPath + jsonFileName
 
         if os.path.exists(patientJson):
-            with open(patientJson, 'r') as f:
-                userData = json.load(f)
+            jsonFile = open(patientJson, "r")
+            userData = json.load(jsonFile)
+            jsonFile.close()
 
             date = wx.DateTimeFromDMY(userData['dobDay'], userData['dobMonth'], userData['dobYear'])
             
@@ -117,6 +144,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.patientIdTextCtrl.SetValue(userData['patientID'])
             self.patientPanel.notesTextCtrl.SetValue(userData['notes'])
 
+            self.loadSims()
         else:
             wx.MessageBox('Could not load user', 'Problem', wx.OK | wx.ICON_INFORMATION)
 
@@ -144,9 +172,11 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             if os.path.exists(patientPath):
                 wx.MessageBox('Please enter a different name', 'Existing User', wx.OK | wx.ICON_INFORMATION)
             else:
-                os.makedirs(patientPath)
+                # os.makedirs(patientPath)
+                os.makedirs(patientPath + "Sessions/")
 
-                infoJsonPath = patientPath + "info.json"
+                infoJsonPath = patientPath + jsonFileName
+                allSessionsPath = patientPath + allSessionsFileName
 
                 dob = self.createPanel.dobDatePicker.GetValue()
                 dobDay, dobMonth, dobYear = dob.Day, dob.Month, dob.Year
@@ -164,16 +194,45 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                     "notes":self.createPanel.notesTextCtrl.GetValue()
                 }
 
-                with open(infoJsonPath, 'w') as f:
-                    json.dump(userData, f, indent=4)
-                    f.write('\n')
+                # with open(infoJsonPath, 'w') as f:
+                #     json.dump(userData, f, indent=4)
+                #     f.write('\n')
+
+                jsonFile = open(infoJsonPath, "w")
+                jsonFile.write(json.dumps(userData, indent = 4))
+                jsonFile.close()
+
+                open(allSessionsPath, 'w')
 
                 print userData
 
                 self.loadUsers()
-                self.goToUser("patient", newUser)
+                self.goToPatient("patient", newUser)
                 self.resetCreatePanel()
-        
+
+    def updatePatientInfo(self, event):
+        if self.patientPanel.fnameTextCtrl.GetValue() == "" or self.patientPanel.lnameTextCtrl.GetValue() == "" or self.patientPanel.patientIdTextCtrl.GetValue() == "":
+            wx.MessageBox('Please fill out all the mandory (*) fields', 'Missing Information', wx.OK | wx.ICON_INFORMATION)
+        else:
+            global patientPath
+
+            patientJson = patientPath + jsonFileName
+            jsonFile = open(patientJson, "r")
+            userData = json.load(jsonFile)
+            jsonFile.close()
+
+            dob = self.patientPanel.dobDatePicker.GetValue()
+            dobDay, dobMonth, dobYear = dob.Day, dob.Month, dob.Year
+
+            userData['patientID'] = self.patientPanel.patientIdTextCtrl.GetValue()
+            userData['notes'] = self.patientPanel.notesTextCtrl.GetValue()
+
+
+            jsonFile = open(patientJson, "w+")
+            jsonFile.write(json.dumps(userData, indent = 4))
+            jsonFile.close()
+
+        print self
 
     def updatePanel(self, panel):
         if panel == "intro":
@@ -205,7 +264,74 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.historyInfoPanel.Show()
         self.Layout()
 
+    def simTitle(self, event):
+        selectedSim = self.patientPanel.simChoice.GetStringSelection()
+        selectedIndex = self.patientPanel.simChoice.GetCurrentSelection()
+        
+        if selectedIndex != 0:
+            # with open(patientPath + allSessionsFileName, 'r') as f:
+            #     sessionsList = [line.strip() for line in f]
 
+            allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
+            sessionsList = allSessionsListFile.readlines()
+
+            print sessionsList
+            print len(sessionsList)
+
+            if not os.path.exists(patientPath + sessionsDirectory + selectedSim):
+                self.sessionNum = 1
+            else:
+                selectedSimSessionList = []
+                for item in os.listdir(patientPath + sessionsDirectory + selectedSim):
+                    if not item.startswith('.'):
+                        selectedSimSessionList.append(item)
+
+                print "sessionlist: ", selectedSimSessionList
+                self.sessionNum = len(selectedSimSessionList) + 1
+
+            self.allSessionsNum = len(sessionsList) + 1
+            self.newSessionTitle = str(self.allSessionsNum) + "-" + selectedSim + "-Session" + str(self.sessionNum)
+            self.patientPanel.simTitleTextCtrl.SetValue(self.newSessionTitle)
+
+            self.newSessionPath = sessionsDirectory + selectedSim + "/" + self.newSessionTitle + "/"
+            print self.newSessionPath
+        else:
+            self.patientPanel.simTitleTextCtrl.Clear()
+
+    def startSimulation(self, event):
+        selectedSim = self.patientPanel.simChoice.GetStringSelection()
+        selectedIndex = self.patientPanel.simChoice.GetCurrentSelection()
+
+        if selectedIndex != 0:
+            if not os.path.exists(patientPath + self.newSessionPath):
+                os.makedirs(patientPath + self.newSessionPath)
+
+                unixTime = time.time()
+
+                with open(patientPath + allSessionsFileName, "a") as myfile:
+                    myfile.write(self.newSessionPath + "\t" + self.newSessionTitle + "\n")
+
+                sessionInfoJsonPath = patientPath + self.newSessionPath + sessionInfoJsonFileName
+                allSessionsPath = patientPath + allSessionsFileName
+
+                print sessionInfoJsonPath
+
+                sessionData = {
+                    "title":self.newSessionTitle,
+                    "simulation":selectedSim,
+                    "notes":self.patientPanel.simNotesTextCtrl.GetValue(),
+                    "startTime":unixTime,
+                }
+
+                jsonFile = open(sessionInfoJsonPath, "w")
+                jsonFile.write(json.dumps(sessionData, indent = 4))
+                jsonFile.close()
+
+                self.allSessionsNum = None
+                self.newSessionTitle = None
+                self.newSessionPath = None
+            else:
+                wx.MessageBox('Session already exists', 'Session Exists', wx.OK | wx.ICON_INFORMATION)
 
 
     def setStaticSize(self, width, height):
