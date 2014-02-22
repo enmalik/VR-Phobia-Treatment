@@ -58,6 +58,14 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.patientPanel.updatePatientBtn.Bind( wx.EVT_BUTTON, self.updatePatientInfo )
         self.patientPanel.simChoice.Bind( wx.EVT_CHOICE, self.simTitle )
         self.patientPanel.simStartBtn.Bind( wx.EVT_BUTTON, self.startSimulation )
+        self.patientPanel.saveSessionBtn.Bind( wx.EVT_BUTTON, self.saveSimulation )
+        self.patientPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelPatient )
+
+        self.patientPanel.historyListPanel.simHistoryCheckList.Bind( wx.EVT_LISTBOX, self.historySessionSelect )
+
+        self.patientPanel.historyInfoPanel.cancelInfoBtn.Bind( wx.EVT_BUTTON, self.cancelSessionInfo )
+        self.patientPanel.historyInfoPanel.updateSessionBtn.Bind( wx.EVT_BUTTON, self.updateSessionInfo )
+
 
 
     # def firstPanel(self, parent):
@@ -130,6 +138,9 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
         patientJson = patientPath + jsonFileName
 
+        self.loadHistoryList("All")
+
+
         if os.path.exists(patientJson):
             jsonFile = open(patientJson, "r")
             userData = json.load(jsonFile)
@@ -145,6 +156,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.notesTextCtrl.SetValue(userData['notes'])
 
             self.loadSims()
+            self.loadHistorySimChoices()
         else:
             wx.MessageBox('Could not load user', 'Problem', wx.OK | wx.ICON_INFORMATION)
 
@@ -264,6 +276,12 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.historyInfoPanel.Show()
         self.Layout()
 
+    def cancelPatient(self, event):
+        self.updatePanel("intro")
+        self.resetStartSimulationPanel()
+        self.resetHistoryInfoPanel()
+
+
     def simTitle(self, event):
         selectedSim = self.patientPanel.simChoice.GetStringSelection()
         selectedIndex = self.patientPanel.simChoice.GetCurrentSelection()
@@ -272,6 +290,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             # with open(patientPath + allSessionsFileName, 'r') as f:
             #     sessionsList = [line.strip() for line in f]
 
+            # get all the sessions
             allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
             sessionsList = allSessionsListFile.readlines()
 
@@ -281,6 +300,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             if not os.path.exists(patientPath + sessionsDirectory + selectedSim):
                 self.sessionNum = 1
             else:
+                # get the specific sessions of selected simulation
                 selectedSimSessionList = []
                 for item in os.listdir(patientPath + sessionsDirectory + selectedSim):
                     if not item.startswith('.'):
@@ -302,6 +322,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         selectedSim = self.patientPanel.simChoice.GetStringSelection()
         selectedIndex = self.patientPanel.simChoice.GetCurrentSelection()
 
+        print self.patientPanel.simStartBtn.GetLabel()
+
         if selectedIndex != 0:
             if not os.path.exists(patientPath + self.newSessionPath):
                 os.makedirs(patientPath + self.newSessionPath)
@@ -311,10 +333,10 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 with open(patientPath + allSessionsFileName, "a") as myfile:
                     myfile.write(self.newSessionPath + "\t" + self.newSessionTitle + "\n")
 
-                sessionInfoJsonPath = patientPath + self.newSessionPath + sessionInfoJsonFileName
+                self.sessionInfoJsonPath = patientPath + self.newSessionPath + sessionInfoJsonFileName
                 allSessionsPath = patientPath + allSessionsFileName
 
-                print sessionInfoJsonPath
+                print self.sessionInfoJsonPath
 
                 sessionData = {
                     "title":self.newSessionTitle,
@@ -323,15 +345,142 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                     "startTime":unixTime,
                 }
 
-                jsonFile = open(sessionInfoJsonPath, "w")
+                jsonFile = open(self.sessionInfoJsonPath, "w")
                 jsonFile.write(json.dumps(sessionData, indent = 4))
                 jsonFile.close()
 
-                self.allSessionsNum = None
-                self.newSessionTitle = None
-                self.newSessionPath = None
+                self.patientPanel.simChoice.Enable(False)
+                self.patientPanel.simStartBtn.Enable(False)
+                self.patientPanel.simStartBtn.SetLabel("Running...")
+                self.patientPanel.saveSessionBtn.Enable(True)
             else:
                 wx.MessageBox('Session already exists', 'Session Exists', wx.OK | wx.ICON_INFORMATION)
+
+    def saveSimulation(self, event):
+        print self.patientPanel.simStartBtn.IsEnabled()
+        print patientPath
+
+        jsonFile = open(self.sessionInfoJsonPath, "r")
+        sessionData = json.load(jsonFile)
+        jsonFile.close()
+
+        sessionData['notes'] = self.patientPanel.simNotesTextCtrl.GetValue()
+
+        jsonFile = open(self.sessionInfoJsonPath, "w+")
+        jsonFile.write(json.dumps(sessionData, indent = 4))
+        jsonFile.close()
+
+        self.loadHistoryList("All")
+        self.patientPanel.patientNotebook.SetSelection(2)
+
+        self.resetStartSimulationPanel()
+
+        # updatePanel
+
+    def loadHistoryList(self, simType):
+        self.patientPanel.historyListPanel.simHistoryCheckList.Clear()
+        # get all the sessions
+        if simType == "All":
+            allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
+            sessionsList = allSessionsListFile.readlines()
+
+            self.sessionPaths = []
+            self.sessionTitles = []
+            sessionVals = []
+
+            for session in sessionsList:
+                sessionVals = session.split()
+                self.sessionPaths.append(sessionVals[0])
+                self.sessionTitles.append(sessionVals[1])
+
+            self.patientPanel.historyListPanel.simHistoryCheckList.AppendItems(self.sessionTitles)
+
+    def resetHistoryListPanel(self):
+        self.patientPanel.historyListPanel.simHistoryCheckList.SetSelection(0)
+        self.patientPanel.historyListPanel.simHistoryCheckList.Clear()
+
+
+    def loadHistorySimChoices(self):
+        self.patientPanel.historyListPanel.simChoice.Clear()
+        historySimList = ["All"]
+
+        for item in os.listdir(simDirectory):
+            if not item.startswith('.'):
+                historySimList.append(item)
+        self.patientPanel.historyListPanel.simChoice.AppendItems(historySimList)
+
+
+    def historySessionSelect(self, event):
+        self.selectedSessionIndex = self.patientPanel.historyListPanel.simHistoryCheckList.GetSelection()
+        print self.sessionPaths[self.selectedSessionIndex]
+        self.patientPanel.historyListPanel.simHistoryCheckList.SetSelection(-1)
+
+        self.goToSessionInfo(self.sessionPaths[self.selectedSessionIndex])
+
+    def goToSessionInfo(self, relativeSessionPath):
+        self.updateHistoryPanel("info")
+        
+        sessionPath = patientPath + relativeSessionPath
+        sessionJson = sessionPath + sessionInfoJsonFileName
+
+        if os.path.exists(sessionJson):
+            jsonFile = open(sessionJson, "r")
+            sessionData = json.load(jsonFile)
+            jsonFile.close()
+            
+            formattedDate = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sessionData['startTime']))
+
+            self.patientPanel.historyInfoPanel.simTextCtrl.SetValue(sessionData['simulation'])
+            self.patientPanel.historyInfoPanel.histInfoTitleTextCtrl.SetValue(sessionData['title'])
+            self.patientPanel.historyInfoPanel.sessionDateTextCtrl.SetValue(formattedDate)
+            self.patientPanel.historyInfoPanel.histInfoNotesTextCtrl.SetValue(sessionData['notes'])
+        else:
+            wx.MessageBox('Could not load Session', 'Problem', wx.OK | wx.ICON_INFORMATION)
+
+    def updateSessionInfo(self, event):
+        relativeSessionPath = self.sessionPaths[self.selectedSessionIndex]
+
+        sessionPath = patientPath + relativeSessionPath
+        sessionJson = sessionPath + sessionInfoJsonFileName
+
+        jsonFile = open(sessionJson, "r")
+        sessionData = json.load(jsonFile)
+        jsonFile.close()
+            
+        sessionData['simulation'] = self.patientPanel.historyInfoPanel.simTextCtrl.GetValue()
+        sessionData['title'] = self.patientPanel.historyInfoPanel.histInfoTitleTextCtrl.GetValue()
+        sessionData['notes'] = self.patientPanel.historyInfoPanel.histInfoNotesTextCtrl.GetValue()
+
+        jsonFile = open(sessionJson, "w+")
+        jsonFile.write(json.dumps(sessionData, indent = 4))
+        jsonFile.close()
+
+        self.resetHistoryInfoPanel()
+
+
+    def cancelSessionInfo(self, event):
+        self.resetHistoryInfoPanel()
+
+    def resetHistoryInfoPanel(self):
+        self.updateHistoryPanel("list")
+        self.patientPanel.historyInfoPanel.simTextCtrl.Clear()
+        self.patientPanel.historyInfoPanel.histInfoTitleTextCtrl.Clear()
+        self.patientPanel.historyInfoPanel.sessionDateTextCtrl.Clear()
+        self.patientPanel.historyInfoPanel.histInfoNotesTextCtrl.Clear()
+
+
+    def resetStartSimulationPanel(self):
+        self.patientPanel.simChoice.Enable(True)
+        self.patientPanel.simChoice.SetSelection(0)
+        self.patientPanel.simTitleTextCtrl.Clear()
+        self.patientPanel.simNotesTextCtrl.Clear()
+        self.patientPanel.simStartBtn.Enable(True)
+        self.patientPanel.simStartBtn.SetLabel("Start")
+        self.patientPanel.saveSessionBtn.Enable(False)
+        self.sessionInfoJsonPath = None
+        self.allSessionsNum = None
+        self.newSessionTitle = None
+        self.newSessionPath = None
 
 
     def setStaticSize(self, width, height):

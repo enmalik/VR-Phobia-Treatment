@@ -1,3 +1,12 @@
 Sessions/Skyscraper/1-Skyscraper-Session1/	1-Skyscraper-Session1
 Sessions/Skyscraper/2-Skyscraper-Session2/	2-Skyscraper-Session2
 Sessions/Skyscraper/3-Skyscraper-Session3/	3-Skyscraper-Session3
+Sessions/dummy/4-dummy-Session1/	4-dummy-Session1
+Sessions/Skyscraper/5-Skyscraper-Session4/	5-Skyscraper-Session4
+Sessions/Skyscraper/6-Skyscraper-Session5/	6-Skyscraper-Session5
+Sessions/Skyscraper/7-Skyscraper-Session6/	7-Skyscraper-Session6
+Sessions/Skyscraper/8-Skyscraper-Session7/	8-Skyscraper-Session7
+Sessions/Skyscraper/9-Skyscraper-Session8/	9-Skyscraper-Session8
+Sessions/Skyscraper/10-Skyscraper-Session9/	10-Skyscraper-Session9
+Sessions/Skyscraper/11-Skyscraper-Session10/	11-Skyscraper-Session10
+Sessions/Skyscraper/12-Skyscraper-Session11/	12-Skyscraper-Session11

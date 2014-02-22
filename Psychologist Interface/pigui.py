@@ -177,8 +177,21 @@ class PatientPanel ( wx.Panel ):
         
         bSizer101.Add( patientFieldsSizer, 0, wx.EXPAND, 5 )
         
+        gSizer31 = wx.GridSizer( 2, 2, 0, 25 )
+        
+        
+        gSizer31.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+        
+        
+        gSizer31.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+        
         self.updatePatientBtn = wx.Button( self.notebookProfilePanel, wx.ID_ANY, u"Update Patient", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
-        bSizer101.Add( self.updatePatientBtn, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        gSizer31.Add( self.updatePatientBtn, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.cancelPatientBtn = wx.Button( self.notebookProfilePanel, wx.ID_ANY, u"Cancel", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
+        gSizer31.Add( self.cancelPatientBtn, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        bSizer101.Add( gSizer31, 0, wx.EXPAND, 5 )
         
         self.notebookProfilePanel.SetSizer( bSizer101 )
         self.notebookProfilePanel.Layout()
@@ -218,8 +231,15 @@ class PatientPanel ( wx.Panel ):
         
         bSizer9.Add( patientFieldsSizer1, 0, wx.EXPAND, 5 )
         
+        gSizer3 = wx.GridSizer( 1, 2, 0, 25 )
+        
         self.simStartBtn = wx.Button( self.sessionNotebookPanel, wx.ID_ANY, u"Start", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
-        bSizer9.Add( self.simStartBtn, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        gSizer3.Add( self.simStartBtn, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.saveSessionBtn = wx.Button( self.sessionNotebookPanel, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
+        gSizer3.Add( self.saveSessionBtn, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        bSizer9.Add( gSizer3, 0, wx.EXPAND, 5 )
         
         self.sessionNotebookPanel.SetSizer( bSizer9 )
         self.sessionNotebookPanel.Layout()
@@ -412,12 +432,21 @@ class HistoryInformationPanel ( wx.Panel ):
         
         self.histInfoTitleText = wx.StaticText( self, wx.ID_ANY, u"Title*", wx.Point( -1,-1 ), wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.histInfoTitleText.Wrap( -1 )
-        patientFieldsSizer1.Add( self.histInfoTitleText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        patientFieldsSizer1.Add( self.histInfoTitleText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
         
         self.histInfoTitleTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
         self.histInfoTitleTextCtrl.Enable( False )
         
         patientFieldsSizer1.Add( self.histInfoTitleTextCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        
+        self.sessionDateText = wx.StaticText( self, wx.ID_ANY, u"Date", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
+        self.sessionDateText.Wrap( -1 )
+        patientFieldsSizer1.Add( self.sessionDateText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
+        
+        self.sessionDateTextCtrl = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+        self.sessionDateTextCtrl.Enable( False )
+        
+        patientFieldsSizer1.Add( self.sessionDateTextCtrl, 0, wx.ALL, 5 )
         
         self.histInfoNotesTexts = wx.StaticText( self, wx.ID_ANY, u"Notes", wx.DefaultPosition, wx.Size( 250,-1 ), wx.ALIGN_CENTRE )
         self.histInfoNotesTexts.Wrap( -1 )
