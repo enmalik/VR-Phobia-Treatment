@@ -61,7 +61,12 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.patientPanel.saveSessionBtn.Bind( wx.EVT_BUTTON, self.saveSimulation )
         self.patientPanel.cancelPatientBtn.Bind( wx.EVT_BUTTON, self.cancelPatient )
 
-        self.patientPanel.historyListPanel.simHistoryCheckList.Bind( wx.EVT_LISTBOX, self.historySessionSelect )
+        # single click, regardless of checking or not, takes you to session. making it double click.
+        # self.patientPanel.historyListPanel.simHistoryCheckList.Bind( wx.EVT_LISTBOX, self.historySessionSelect )
+
+        self.patientPanel.historyListPanel.simHistoryCheckList.Bind( wx.EVT_LISTBOX_DCLICK, self.historySessionSelect )
+        self.patientPanel.historyListPanel.simChoice.Bind( wx.EVT_CHOICE, self.historySimulationSelect )
+        self.patientPanel.historyListPanel.plotComparisonsBtn.Bind( wx.EVT_BUTTON, self.plotTrendComparisons )
 
         self.patientPanel.historyInfoPanel.cancelInfoBtn.Bind( wx.EVT_BUTTON, self.cancelSessionInfo )
         self.patientPanel.historyInfoPanel.updateSessionBtn.Bind( wx.EVT_BUTTON, self.updateSessionInfo )
@@ -237,6 +242,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             dobDay, dobMonth, dobYear = dob.Day, dob.Month, dob.Year
 
             userData['patientID'] = self.patientPanel.patientIdTextCtrl.GetValue()
+            userData['gender'] = self.patientPanel.genderChoice.GetSelection()
             userData['notes'] = self.patientPanel.notesTextCtrl.GetValue()
 
 
@@ -319,6 +325,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.simTitleTextCtrl.Clear()
 
     def startSimulation(self, event):
+        self.resetHistoryListPanel()
+
         selectedSim = self.patientPanel.simChoice.GetStringSelection()
         selectedIndex = self.patientPanel.simChoice.GetCurrentSelection()
 
@@ -331,7 +339,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 unixTime = time.time()
 
                 with open(patientPath + allSessionsFileName, "a") as myfile:
-                    myfile.write(self.newSessionPath + "\t" + self.newSessionTitle + "\n")
+                    myfile.write(self.newSessionPath + "\t" + self.newSessionTitle + "\t" + selectedSim + "\n")
 
                 self.sessionInfoJsonPath = patientPath + self.newSessionPath + sessionInfoJsonFileName
                 allSessionsPath = patientPath + allSessionsFileName
@@ -379,25 +387,70 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
     def loadHistoryList(self, simType):
         self.patientPanel.historyListPanel.simHistoryCheckList.Clear()
+        print "load history list: ", simType
+
+        if simType != "All":
+            print "enable button"
+            self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(True)
+        elif simType == "All":
+            print "disable button"
+            self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(False)  
+
         # get all the sessions
-        if simType == "All":
-            allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
-            sessionsList = allSessionsListFile.readlines()
+        allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
+        sessionsList = allSessionsListFile.readlines()
 
-            self.sessionPaths = []
-            self.sessionTitles = []
-            sessionVals = []
+        self.sessionPaths = []
+        self.sessionTitles = []
+        self.sessionSims = []
+        sessionVals = []
 
-            for session in sessionsList:
-                sessionVals = session.split()
+        for session in sessionsList:
+            sessionVals = session.split()
+            if simType != "All" and sessionVals[2] == simType:
+                print "in"
                 self.sessionPaths.append(sessionVals[0])
                 self.sessionTitles.append(sessionVals[1])
+                self.sessionSims.append(sessionVals[2])
+            elif simType == "All":
+                print "in else"
+                self.sessionPaths.append(sessionVals[0])
+                self.sessionTitles.append(sessionVals[1])
+                self.sessionSims.append(sessionVals[2])
 
-            self.patientPanel.historyListPanel.simHistoryCheckList.AppendItems(self.sessionTitles)
+        self.patientPanel.historyListPanel.simHistoryCheckList.AppendItems(self.sessionTitles)
+
+    def plotTrendComparisons(self, event):
+        print self.patientPanel.historyListPanel.simHistoryCheckList.GetChecked()
+        trendList = self.patientPanel.historyListPanel.simHistoryCheckList.GetChecked()
+        print type(trendList)
+        print len(trendList)
+
+        # print self.sessionPaths
+        # print self.sessionTitles
+
+        simType = self.patientPanel.historyListPanel.simChoice.GetStringSelection()
+        self.sessionTrendList = []
+
+        for sessionIndex in trendList:
+            sessionPath = self.sessionPaths[sessionIndex]
+            self.sessionTrendList.append(sessionPath)
+
+        print self.sessionTrendList
+
+        if len(trendList) == 0:
+            wx.MessageBox('Please choose sessions to be plotted', 'No Sessions Selected', wx.OK | wx.ICON_INFORMATION)
+        else:
+            wx.MessageBox('Will show plots of\n' + str(self.sessionTrendList), 'To Be Implemented', wx.OK | wx.ICON_INFORMATION)
+
+
+
 
     def resetHistoryListPanel(self):
-        self.patientPanel.historyListPanel.simHistoryCheckList.SetSelection(0)
+        self.patientPanel.historyListPanel.simChoice.SetSelection(0)
+        self.patientPanel.historyListPanel.simHistoryCheckList.SetSelection(-1)
         self.patientPanel.historyListPanel.simHistoryCheckList.Clear()
+        self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(False)
 
 
     def loadHistorySimChoices(self):
@@ -456,6 +509,13 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         jsonFile.close()
 
         self.resetHistoryInfoPanel()
+
+    def historySimulationSelect(self, event):
+        simType = self.patientPanel.historyListPanel.simChoice.GetStringSelection()
+        print simType
+        self.loadHistoryList(simType)
+
+
 
 
     def cancelSessionInfo(self, event):
