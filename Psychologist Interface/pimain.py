@@ -610,12 +610,6 @@ class PanelHistoryInfo(pigui.HistoryInformationPanel):
     def __init__(self, parent):
         pigui.HistoryInformationPanel.__init__(self, parent)
 
-
-
-
-
-
-
 def main():
     app = wx.App()
     
