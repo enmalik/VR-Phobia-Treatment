@@ -1,5 +1,5 @@
-import sys
-sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
+# import sys
+# sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
 
 import wx
 import pigui
@@ -41,6 +41,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.patientPanel = PanelPatient(self)
         self.patientPanel.historyListPanel = PanelHistory(self.patientPanel.historyNotebookPanel)
         self.patientPanel.historyInfoPanel = PanelHistoryInfo(self.patientPanel.historyNotebookPanel)
+
+        print self.introPanel.IsEnabled()
 
         self.setPanelTypes()
         self.loadUsers()
@@ -94,6 +96,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         # patientList.extend(os.listdir(patientDirectory))
 
         self.introPanel.patientChoice.AppendItems(patientList)
+        self.introPanel.patientChoice.SetSelection(0)
         print "loaded users"
         print "patient list: ", patientList
 
@@ -109,6 +112,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         # patientList.extend(os.listdir(patientDirectory))
 
         self.patientPanel.simChoice.AppendItems(simList)
+        self.patientPanel.simChoice.SetSelection(0)
         print "loaded simulations"
         print "sim list: ", simList
 
@@ -394,7 +398,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(True)
         elif simType == "All":
             print "disable button"
-            self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(False)  
+            self.patientPanel.historyListPanel.plotComparisonsBtn.Enable(False)
 
         # get all the sessions
         allSessionsListFile = open(patientPath + allSessionsFileName, 'r')
@@ -417,6 +421,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 self.sessionPaths.append(sessionVals[0])
                 self.sessionTitles.append(sessionVals[1])
                 self.sessionSims.append(sessionVals[2])
+
+        print "session titles: ", self.sessionTitles
 
         self.patientPanel.historyListPanel.simHistoryCheckList.AppendItems(self.sessionTitles)
 
@@ -461,6 +467,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             if not item.startswith('.'):
                 historySimList.append(item)
         self.patientPanel.historyListPanel.simChoice.AppendItems(historySimList)
+        self.patientPanel.historyListPanel.simChoice.SetSelection(0)
 
 
     def historySessionSelect(self, event):
@@ -545,7 +552,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
     def setStaticSize(self, width, height):
         self.SetSizeWH(width, height)
-        self.SetMaxSize((width, height))
+        # self.SetMaxSize((width, height))
 
 
     

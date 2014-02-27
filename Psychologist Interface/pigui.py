@@ -1,10 +1,10 @@
-import sys
-sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
+# import sys
+# sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
 
-import wx
+# import wx
 
-import sys
-sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
+# import sys
+# sys.path.append("/Users/nahiyanmalik/Development/wxPython-src-3.0.0.0/wxPython")
 
 import wx
 
@@ -246,19 +246,6 @@ class PatientPanel ( wx.Panel ):
         bSizer9.Fit( self.sessionNotebookPanel )
         self.patientNotebook.AddPage( self.sessionNotebookPanel, u"Run New Session", False )
         self.historyNotebookPanel = wx.Panel( self.patientNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bSizer10 = wx.BoxSizer( wx.VERTICAL )
-        
-        self.historyListPanel = wx.Panel( self.historyNotebookPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        bSizer10.Add( self.historyListPanel, 1, wx.EXPAND |wx.ALL, 5 )
-        
-        self.historyInfoPanel = wx.Panel( self.historyNotebookPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        self.historyInfoPanel.Hide()
-        
-        bSizer10.Add( self.historyInfoPanel, 1, wx.EXPAND |wx.ALL, 5 )
-        
-        self.historyNotebookPanel.SetSizer( bSizer10 )
-        self.historyNotebookPanel.Layout()
-        bSizer10.Fit( self.historyNotebookPanel )
         self.patientNotebook.AddPage( self.historyNotebookPanel, u"History of Sessions", False )
         
         patientProfileSizer.Add( self.patientNotebook, 1, wx.ALL|wx.EXPAND, 5 )
