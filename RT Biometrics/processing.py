@@ -281,7 +281,7 @@ class CalibrateThread(Thread):
 
             print numLine
 
-            if maxCounter == 1: #set back to 5
+            if maxCounter == 5:
                 print numArduinoResults
                 maxNumVals = np.max(numArduinoResults)
                 global delayIncrement
@@ -364,16 +364,12 @@ class CalibrateThread(Thread):
             #     return
 
             #for demo calibration set to 6
-            if statusCount == 1:
+            if statusCount == 6:
                 global calibrateLow, calibrateHigh, calibrateMean
 
-                # calibrateLow = np.min(calibrateBPM[-4:-1])
-                # calibrateHigh = np.max(calibrateBPM[-4:-1])
-                # calibrateMean = np.mean(calibrateBPM[-4:-1])
-
-                calibrateLow = np.min(calibrateBPM[-1])
-                calibrateHigh = np.max(calibrateBPM[-1])
-                calibrateMean = np.mean(calibrateBPM[-1])
+                calibrateLow = np.min(calibrateBPM[-4:-1])
+                calibrateHigh = np.max(calibrateBPM[-4:-1])
+                calibrateMean = np.mean(calibrateBPM[-4:-1])
 
                 print "min: ", calibrateLow
                 print "max: ", calibrateHigh
