@@ -145,7 +145,8 @@ class MainApp(gui.RealtimeInterface):
 
         source = os.listdir(self.sessionPath)
         for files in source:
-            shutil.copy(files, self.latestSessionSavePath)
+            print files
+            shutil.copy(self.sessionPath + files, self.latestSessionSavePath)
 
         self.patientChoice.Enable(False)
         self.saveButton.Enable(False)
