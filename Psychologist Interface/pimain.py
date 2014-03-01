@@ -6,9 +6,14 @@ import pigui
 import os
 import json
 import time
+import shlex, subprocess
 
 
 resetDate = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
+
+vlcMacDir = "/Applications/VLC.app/Contents/MacOS/VLC"
+vlcMacOptions = ' screen:// --screen-fps=25 --quiet --sout "#transcode{vcodec=h264,vb072}:standard{access=file,mux=mp4,dst="'
+vlcMacFileName = 'video.mp4"}"'
 
 appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
 patientDirectory = appDirectory + "Patients/"
@@ -365,6 +370,18 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 self.patientPanel.simStartBtn.Enable(False)
                 self.patientPanel.simStartBtn.SetLabel("Running...")
                 self.patientPanel.saveSessionBtn.Enable(True)
+
+                command_line = vlcMacDir.replace(" ", "\ ") + vlcMacOptions + patientPath.replace(" ", "\ ") + self.newSessionPath.replace(" ", "\ ") + vlcMacFileName
+                print command_line
+
+                args = shlex.split(command_line)
+                p = subprocess.Popen(args)
+
+                # print os.path.normpath(vlcMacDir) + vlcMacOptions + patientPath + os.path.normpath(self.newSessionPath) + vlcMacFileName
+                # print os.path.normpath(vlcMacDir) + vlcMacOptions + os.path.normpath(patientPath + self.newSessionPath) + "/" + vlcMacFileName
+                # print ""
+                # os.system(os.path.normpath(vlcMacDir) + vlcMacOptions + patientPath + os.path.normpath(self.newSessionPath) + "/" + vlcMacFileName)
+
             else:
                 wx.MessageBox('Session already exists', 'Session Exists', wx.OK | wx.ICON_INFORMATION)
 
