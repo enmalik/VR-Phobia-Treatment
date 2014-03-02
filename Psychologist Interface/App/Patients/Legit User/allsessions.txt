@@ -1,2 +1,0 @@
-Sessions/Skyscraper/1-Skyscraper-Session1/	1-Skyscraper-Session1	Skyscraper
-Sessions/Skyscraper/2-Skyscraper-Session2/	2-Skyscraper-Session2	Skyscraper
