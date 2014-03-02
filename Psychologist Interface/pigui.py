@@ -444,9 +444,20 @@ class HistoryInformationPanel ( wx.Panel ):
         
         bSizer9.Add( patientFieldsSizer1, 0, wx.EXPAND, 5 )
         
-        self.sessionPlotBitmap = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer9.Add( self.sessionPlotBitmap, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+        fgSizer6 = wx.FlexGridSizer( 1, 2, 0, 0 )
+        fgSizer6.SetFlexibleDirection( wx.BOTH )
+        fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+        fgSizer6.SetMinSize( wx.Size( -1,265 ) ) 
         
+        
+        fgSizer6.AddSpacer( ( 200, 0), 0, 0, 5 )
+        
+        self.sessionPlotBitmap = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.Point( 500,200 ), wx.Size( 400,227 ), 0 )
+        fgSizer6.Add( self.sessionPlotBitmap, 0, wx.TOP|wx.BOTTOM, 10 )
+        
+        bSizer9.Add( fgSizer6, 0, wx.EXPAND, 5 )
+
         gSizer3 = wx.GridSizer( 1, 2, 0, 25 )
         
         self.updateSessionBtn = wx.Button( self, wx.ID_ANY, u"Update", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )

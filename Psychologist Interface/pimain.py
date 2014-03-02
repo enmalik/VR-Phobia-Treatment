@@ -7,6 +7,10 @@ import os
 import json
 import time
 import shlex, subprocess
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.signal import gaussian
+from scipy.ndimage import filters
 
 
 resetDate = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
@@ -22,6 +26,11 @@ sessionsDirectory = "Sessions/"
 jsonFileName = "info.json"
 sessionInfoJsonFileName = "sessionInfo.json"
 allSessionsFileName = "allsessions.txt"
+videoFileName = "video.mp4"
+
+sessionVideoPath = ""
+sessionStartTime = None
+sessionPlotData = None
 
 patientPath = ""
 
@@ -77,6 +86,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
         self.patientPanel.historyInfoPanel.cancelInfoBtn.Bind( wx.EVT_BUTTON, self.cancelSessionInfo )
         self.patientPanel.historyInfoPanel.updateSessionBtn.Bind( wx.EVT_BUTTON, self.updateSessionInfo )
+        self.patientPanel.historyInfoPanel.sessionPlotBitmap.Bind(wx.EVT_LEFT_DOWN, self.interactivePlot) 
 
 
 
@@ -454,19 +464,32 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
         simType = self.patientPanel.historyListPanel.simChoice.GetStringSelection()
         self.sessionTrendList = []
+        
+        fig = plt.figure()
+        fig.suptitle('Heart-Rates of Sessions Over Time', fontsize=14, fontweight='bold')
+        plot = fig.add_subplot(111)
+        plot.set_xlabel('Time (Seconds)')
+        plot.set_ylabel('Heart-Rate (Beats Per Minute)')
 
         for sessionIndex in trendList:
             sessionPath = self.sessionPaths[sessionIndex]
             self.sessionTrendList.append(sessionPath)
+
+            sessionData = np.loadtxt(patientPath + sessionPath + "data.txt", skiprows=0)
+            time = sessionData[:,2]
+            bpm = sessionData[:,3]
+            smoothBpm = gaussSmooth(bpm, len(time))
+            plt.plot(time, smoothBpm, label = self.sessionTitles[sessionIndex])
+
 
         print self.sessionTrendList
 
         if len(trendList) == 0:
             wx.MessageBox('Please choose sessions to be plotted', 'No Sessions Selected', wx.OK | wx.ICON_INFORMATION)
         else:
-            wx.MessageBox('Will show plots of\n' + str(self.sessionTrendList), 'To Be Implemented', wx.OK | wx.ICON_INFORMATION)
-
-
+            # wx.MessageBox('Will show plots of\n' + str(self.sessionTrendList), 'To Be Implemented', wx.OK | wx.ICON_INFORMATION)
+            plt.legend(loc='best')
+            plt.show()
 
 
     def resetHistoryListPanel(self):
@@ -497,8 +520,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
     def goToSessionInfo(self, relativeSessionPath):
         self.updateHistoryPanel("info")
         
-        sessionPath = patientPath + relativeSessionPath
-        sessionJson = sessionPath + sessionInfoJsonFileName
+        self.sessionPath = patientPath + relativeSessionPath
+        sessionJson = self.sessionPath + sessionInfoJsonFileName
 
         if os.path.exists(sessionJson):
             jsonFile = open(sessionJson, "r")
@@ -511,8 +534,48 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             self.patientPanel.historyInfoPanel.histInfoTitleTextCtrl.SetValue(sessionData['title'])
             self.patientPanel.historyInfoPanel.sessionDateTextCtrl.SetValue(formattedDate)
             self.patientPanel.historyInfoPanel.histInfoNotesTextCtrl.SetValue(sessionData['notes'])
+
+            
+
+            if os.path.exists(self.sessionPath + "smooth-plot-small.png"):
+                imgFile = self.sessionPath + "smooth-plot-small.png"
+                img = wx.Image(imgFile, wx.BITMAP_TYPE_PNG)
+                self.patientPanel.historyInfoPanel.sessionPlotBitmap.SetBitmap(wx.BitmapFromImage(img))
+
         else:
             wx.MessageBox('Could not load Session', 'Problem', wx.OK | wx.ICON_INFORMATION)
+
+    def interactivePlot(self, event):
+        print "hello"
+
+        sessionPath = self.sessionPath
+        global videoPath
+        videoPath = sessionPath + videoFileName
+
+        jsonFile = open(sessionPath + "sessionInfo.json", "r")
+        sessionData = json.load(jsonFile)
+        jsonFile.close()
+
+        global sessionStartTime, sessionPlotData
+        sessionStartTime = sessionData['startTime']
+        sessionPlotData = np.loadtxt(sessionPath + "data.txt", skiprows=0)
+
+
+
+        smoothBpm = gaussSmooth(sessionPlotData[:,3], len(sessionPlotData[:,2]))
+
+        fig, ax = plt.subplots()
+        fig.suptitle('Session Heart-Rate Over Time (click points to open video)', fontsize=14, fontweight='bold')
+        plot = fig.add_subplot(111)
+        plot.set_xlabel('Time (Seconds)')
+        plot.set_ylabel('Heart-Rate (Beats Per Minute)')
+
+        tolerance = 10 # points
+        ax.plot(sessionPlotData[:,2], smoothBpm, 'o-', picker=10)
+
+        fig.canvas.callbacks.connect('pick_event', on_pick)
+
+        plt.show()
 
     def updateSessionInfo(self, event):
         relativeSessionPath = self.sessionPaths[self.selectedSessionIndex]
@@ -633,6 +696,37 @@ class PanelHistoryInfo(pigui.HistoryInformationPanel):
 
     def __init__(self, parent):
         pigui.HistoryInformationPanel.__init__(self, parent)
+
+def gaussSmooth(vals, num):
+    b = gaussian(num, 1)
+    smoothVals = filters.convolve1d(vals, b/b.sum())
+    return smoothVals
+
+def on_pick(event):
+    global sessionPlotData, sessionStartTime
+    artist = event.artist
+    xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
+    x, y = artist.get_xdata(), artist.get_ydata()
+    ind = event.ind
+    print 'x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse)
+    print 'data point:', x[ind[0]], y[ind[0]]
+    print sessionPlotData[:,2]
+    print np.where(sessionPlotData[:,2] == x[ind[0]])
+    timeIndex = np.where(sessionPlotData[:,2] == x[ind[0]])
+    print int(timeIndex[0])
+
+    if sessionPlotData[:,1][timeIndex] > sessionStartTime:
+        print "yes"
+        videoTime = int(sessionPlotData[:,1][timeIndex] - sessionStartTime)
+
+        command_line = vlcMacDir.replace(" ", "\ ") + " " + videoPath.replace(" ", "\ ") + " --start-time " + str(videoTime)
+        print command_line
+
+        args = shlex.split(command_line)
+        p = subprocess.Popen(args)
+
+    else:
+        print "no"
 
 def main():
     app = wx.App()
