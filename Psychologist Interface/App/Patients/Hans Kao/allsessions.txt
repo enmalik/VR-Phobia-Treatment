@@ -1,5 +1,0 @@
-Sessions/Skyscraper/1-Skyscraper-Session1/	1-Skyscraper-Session1	Skyscraper
-Sessions/Dummy-Simulation/2-Dummy-Simulation-Session1/	2-Dummy-Simulation-Session1	Dummy-Simulation
-Sessions/Skyscraper/3-Skyscraper-Session2/	3-Skyscraper-Session2	Skyscraper
-Sessions/Skyscraper/4-Skyscraper-Session3/	4-Skyscraper-Session3	Skyscraper
-Sessions/Dummy-Simulation/5-Dummy-Simulation-Session2/	5-Dummy-Simulation-Session2	Dummy-Simulation

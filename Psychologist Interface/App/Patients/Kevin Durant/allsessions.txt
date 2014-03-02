@@ -1,6 +1,0 @@
-Sessions/Skyscraper/1-Skyscraper-Session1/	1-Skyscraper-Session1
-Sessions/Skyscraper/2-Skyscraper-Session2/	2-Skyscraper-Session2
-Sessions/Skyscraper/3-Skyscraper-Session3/	3-Skyscraper-Session3
-Sessions/Skyscraper/4-Skyscraper-Session4/	4-Skyscraper-Session4
-Sessions/Skyscraper/5-Skyscraper-Session5/	5-Skyscraper-Session5
-Sessions/Skyscraper/6-Skyscraper-Session6/	6-Skyscraper-Session6
