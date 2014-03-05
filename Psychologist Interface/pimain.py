@@ -26,7 +26,7 @@ vlcMacDir = '"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe"'
 # udkDir = '"C:/UDK/UDK-2013-03/Binaries/Win64/UDK.exe"'
 udkDir = '"C:/UDK/Skyscrapper/Binaries/Win32/UDK.exe"'
 
-frapsVidsDir = "C:/Fraps/Movies/"
+frapsVidsDir = "V:/Videos/"
 
 cwd = os.getcwd()
 
@@ -46,7 +46,6 @@ videoFileName = "video.avi"
 
 ####################
 
-sessionVideoPath = ""
 sessionStartTime = None
 sessionPlotData = None
 
@@ -430,9 +429,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
         sessionData['notes'] = self.patientPanel.simNotesTextCtrl.GetValue()
 
-        jsonFile = open(self.sessionInfoJsonPath, "w+")
-        jsonFile.write(json.dumps(sessionData, indent = 4))
-        jsonFile.close()
+        
 
         wsh = comclt.Dispatch("Wscript.Shell")
         wsh.SendKeys("{F9}")
@@ -441,7 +438,12 @@ class MainApp(pigui.PsychologistInterfaceFrame):
 
         videoSrc = os.listdir(frapsVidsDir)
         videoFile = videoSrc[-1]
-        shutil.move(frapsVidsDir + videoFile, patientPath + self.newSessionPath + videoFileName)
+        # shutil.move(frapsVidsDir + videoFile, patientPath + self.newSessionPath + videoFileName) # no more moving
+        sessionData['videoFile'] = videoFile
+
+        jsonFile = open(self.sessionInfoJsonPath, "w+")
+        jsonFile.write(json.dumps(sessionData, indent = 4))
+        jsonFile.close()
         
         self.loadHistoryList("All")
         self.patientPanel.patientNotebook.SetSelection(2)
@@ -561,6 +563,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             jsonFile = open(sessionJson, "r")
             sessionData = json.load(jsonFile)
             jsonFile.close()
+
+            self.sessionVideoFilePath = frapsVidsDir + sessionData['videoPath']
             
             formattedDate = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sessionData['startTime']))
 
@@ -583,8 +587,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         print "hello"
 
         sessionPath = self.sessionPath
-        global videoPath
-        videoPath = sessionPath + videoFileName
+        # global videoPath
+        # videoPath = sessionPath + videoFileName
 
         jsonFile = open(sessionPath + "sessionInfo.json", "r")
         sessionData = json.load(jsonFile)
@@ -755,7 +759,7 @@ def on_pick(event):
         videoTime = int(sessionPlotData[:,1][timeIndex] - sessionStartTime)
 
         # command_line = vlcMacDir.replace(" ", "\ ") + " " + videoPath.replace(" ", "\ ") + " --start-time " + str(videoTime)
-        command_line = vlcMacDir + ' "' + videoPath + '" --start-time='  + str(videoTime)
+        command_line = vlcMacDir + ' "' + self.sessionVideoFilePath + '" --start-time='  + str(videoTime)
         print command_line
         command_line = str(command_line)
 
