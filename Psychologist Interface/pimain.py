@@ -11,22 +11,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import gaussian
 from scipy.ndimage import filters
-
+import win32com.client as comclt
+import shutil
 
 resetDate = wx.DateTimeFromDMY(31, wx.DateTime.Dec, 2000)
 
-vlcMacDir = "/Applications/VLC.app/Contents/MacOS/VLC"
-vlcMacOptions = ' screen:// --screen-fps=25 --quiet --sout "#transcode{vcodec=h264,vb072}:standard{access=file,mux=mp4,dst="'
-vlcMacFileName = 'video.mp4"}"'
 
-appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
+#######################################
+
+# vlcMacDir = "/Applications/VLC.app/Contents/MacOS/VLC"
+# vlcMacDir = '"C:/Program Files/VideoLAN/VLC/vlc.exe"'
+vlcMacDir = '"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe"'
+
+# udkDir = '"C:/UDK/UDK-2013-03/Binaries/Win64/UDK.exe"'
+udkDir = '"C:/UDK/Skyscrapper/Binaries/Win32/UDK.exe"'
+
+frapsVidsDir = "C:/Fraps/Movies/"
+
+cwd = os.getcwd()
+
+# appDirectory = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App/"
+# appDirectory = "C:/Users/NM/Dropbox/FYDP/Windows/Psychologist Interface/App/"
+# appDirectory = "C:/Users/Vithuran/Dropbox/FYDP/Windows/Psychologist Interface/App/"
+
+appDirectory = cwd + "/App/"
+
 patientDirectory = appDirectory + "Patients/"
 simDirectory = appDirectory + "Simulations/"
 sessionsDirectory = "Sessions/"
 jsonFileName = "info.json"
 sessionInfoJsonFileName = "sessionInfo.json"
 allSessionsFileName = "allsessions.txt"
-videoFileName = "video.mp4"
+videoFileName = "video.avi"
+
+####################
 
 sessionVideoPath = ""
 sessionStartTime = None
@@ -381,11 +399,15 @@ class MainApp(pigui.PsychologistInterfaceFrame):
                 self.patientPanel.simStartBtn.SetLabel("Running...")
                 self.patientPanel.saveSessionBtn.Enable(True)
 
-                command_line = vlcMacDir.replace(" ", "\ ") + vlcMacOptions + patientPath.replace(" ", "\ ") + self.newSessionPath.replace(" ", "\ ") + vlcMacFileName
+                command_line = udkDir
                 print command_line
-
                 args = shlex.split(command_line)
                 p = subprocess.Popen(args)
+
+                time.sleep(5)
+
+                wsh = comclt.Dispatch("Wscript.Shell")
+                wsh.SendKeys("{F9}")
 
                 # print os.path.normpath(vlcMacDir) + vlcMacOptions + patientPath + os.path.normpath(self.newSessionPath) + vlcMacFileName
                 # print os.path.normpath(vlcMacDir) + vlcMacOptions + os.path.normpath(patientPath + self.newSessionPath) + "/" + vlcMacFileName
@@ -399,6 +421,9 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         print self.patientPanel.simStartBtn.IsEnabled()
         print patientPath
 
+        self.patientPanel.saveSessionBtn.Enable(False)
+        self.patientPanel.saveSessionBtn.SetLabel("Saving...")
+
         jsonFile = open(self.sessionInfoJsonPath, "r")
         sessionData = json.load(jsonFile)
         jsonFile.close()
@@ -409,6 +434,15 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         jsonFile.write(json.dumps(sessionData, indent = 4))
         jsonFile.close()
 
+        wsh = comclt.Dispatch("Wscript.Shell")
+        wsh.SendKeys("{F9}")
+
+        time.sleep(5)
+
+        videoSrc = os.listdir(frapsVidsDir)
+        videoFile = videoSrc[-1]
+        shutil.move(frapsVidsDir + videoFile, patientPath + self.newSessionPath + videoFileName)
+        
         self.loadHistoryList("All")
         self.patientPanel.patientNotebook.SetSelection(2)
 
@@ -624,6 +658,7 @@ class MainApp(pigui.PsychologistInterfaceFrame):
         self.patientPanel.simStartBtn.Enable(True)
         self.patientPanel.simStartBtn.SetLabel("Start")
         self.patientPanel.saveSessionBtn.Enable(False)
+        self.patientPanel.saveSessionBtn.SetLabel("Save")
         self.sessionInfoJsonPath = None
         self.allSessionsNum = None
         self.newSessionTitle = None
@@ -719,10 +754,13 @@ def on_pick(event):
         print "yes"
         videoTime = int(sessionPlotData[:,1][timeIndex] - sessionStartTime)
 
-        command_line = vlcMacDir.replace(" ", "\ ") + " " + videoPath.replace(" ", "\ ") + " --start-time " + str(videoTime)
+        # command_line = vlcMacDir.replace(" ", "\ ") + " " + videoPath.replace(" ", "\ ") + " --start-time " + str(videoTime)
+        command_line = vlcMacDir + ' "' + videoPath + '" --start-time='  + str(videoTime)
         print command_line
+        command_line = str(command_line)
 
         args = shlex.split(command_line)
+        print args
         p = subprocess.Popen(args)
 
     else:
