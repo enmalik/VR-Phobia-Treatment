@@ -1,0 +1,29 @@
+BEFORE RUNNING A SESSION, IT'S A GOOD IDEA TO DO A TEST/DUMMY SESSION AFTER GOING THROUGH THE FOLLOWING STEPS:
+
+1) Make sure that "Psychologist Interface" and "RT Biometrics" are in the same directory
+
+2) RT Biometrics/processing.py
+
+Ensure that the COM port is correct.
+
+3) Make sure FRAPS is running in the background.
+
+On General tab, check "Start FRAPS minimized", "Run Fraps when Windows starts", "Minimize to system tray only".
+
+On FPS tab, disable "Benchmarking Hotkey" and "Overlay Hotkey". Check "Hide Overlay".
+
+On Movies Tab, CHANGE THE FOLDER TO THE EXTERNAL HDD. ex. "F:\Videos". Sometimes the drive letter will be different on different computers. Make sure the "Video Capture Hotkey" is set to F9. Check "Half-size". Set a custom frame rate, something like "5" or "10". Do not choose 60, 50 or even 30 fps. DO NOT CHECK "split movie every 4 Gigabytes".  Check "Record Win7 sound, stereo", "Record external input". Everything else on the right hand side remains unchecked.
+
+Ignore the "Screenshots" tab.
+
+3) Psychologist Interface/pimain.py
+
+MAKE SURE THE FOLLOWING THREE VARIABLES AT THE BEGINNING OF THE FILE ARE CORRECT:
+
+vlcMacDir = '"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe"'
+udkDir = '"C:/UDK/Skyscrapper/Binaries/Win32/UDK.exe"'
+frapsVidsDir = "F:/Videos/"
+
+Chances are, they will be different for each computer. So update them accordingly.
+
+AGAIN, AFTER THESE CHANGES, RUN A TEST SESSION TO MAKE SURE EVERYTHING IS WORKING PROPERLY.

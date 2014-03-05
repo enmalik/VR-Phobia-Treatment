@@ -26,7 +26,7 @@ vlcMacDir = '"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe"'
 # udkDir = '"C:/UDK/UDK-2013-03/Binaries/Win64/UDK.exe"'
 udkDir = '"C:/UDK/Skyscrapper/Binaries/Win32/UDK.exe"'
 
-frapsVidsDir = "V:/Videos/"
+frapsVidsDir = "F:/Videos/"
 
 cwd = os.getcwd()
 
@@ -50,6 +50,7 @@ sessionStartTime = None
 sessionPlotData = None
 
 patientPath = ""
+sessionVideoPath = ""
 
 patientList = []
 simList = []
@@ -564,7 +565,8 @@ class MainApp(pigui.PsychologistInterfaceFrame):
             sessionData = json.load(jsonFile)
             jsonFile.close()
 
-            self.sessionVideoFilePath = frapsVidsDir + sessionData['videoPath']
+            global sessionVideoPath
+            sessionVideoPath = frapsVidsDir + sessionData['videoFile']
             
             formattedDate = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sessionData['startTime']))
 
@@ -742,7 +744,7 @@ def gaussSmooth(vals, num):
     return smoothVals
 
 def on_pick(event):
-    global sessionPlotData, sessionStartTime
+    global sessionPlotData, sessionStartTime, sessionVideoPath
     artist = event.artist
     xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
     x, y = artist.get_xdata(), artist.get_ydata()
@@ -759,7 +761,7 @@ def on_pick(event):
         videoTime = int(sessionPlotData[:,1][timeIndex] - sessionStartTime)
 
         # command_line = vlcMacDir.replace(" ", "\ ") + " " + videoPath.replace(" ", "\ ") + " --start-time " + str(videoTime)
-        command_line = vlcMacDir + ' "' + self.sessionVideoFilePath + '" --start-time='  + str(videoTime)
+        command_line = vlcMacDir + ' "' + sessionVideoPath.replace("/", "\\") + '" --start-time='  + str(videoTime)
         print command_line
         command_line = str(command_line)
 
