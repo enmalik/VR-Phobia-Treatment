@@ -12,10 +12,20 @@ import re
 
 from threading import *
 
-workingDir = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/RT Biometrics/App"
+cwd = os.getcwd()
+workingDir = cwd + "/App/"
+
+# workingDir = "/Users/nahiyanmalik/Dropbox/FYDP/Windows/RT Biometrics/App/"
+# workingDir = "C:/Users/NM/Dropbox/FYDP/Windows/RT Biometrics/App/"
+
 sessionDir = workingDir + "/Sessions/"
 
-piDir = "/Users/nahiyanmalik/Development/VR-Phobia-Treatment/Psychologist Interface/App"
+prevDir = os.path.abspath('..')
+piDir = prevDir + "/Psychologist Interface/App/"
+
+# piDir = "/Users/nahiyanmalik/Dropbox/FYDP/Windows/Psychologist Interface/App/"
+# piDir = "C:/Users/NM/Dropbox/FYDP/Windows/Psychologist Interface/App/"
+
 piPatientsDir = piDir + "/Patients/"
 
 
@@ -145,7 +155,6 @@ class MainApp(gui.RealtimeInterface):
 
         source = os.listdir(self.sessionPath)
         for files in source:
-            print files
             shutil.copy(self.sessionPath + files, self.latestSessionSavePath)
 
         self.patientChoice.Enable(False)

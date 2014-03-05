@@ -18,6 +18,13 @@ import gui
 import functions
 import os
 
+# arduinoPort = "COM3" #nahiyan
+# arduinoPort = "COM6" #bala
+arduinoPort = "/dev/tty.usbmodem1421"
+
+smoothStd = 4
+bpmThreshold = 140
+
 stdThresholdLow = 5
 stdThresholdHigh = 500
 
@@ -63,22 +70,22 @@ def arduinoRead():
         del sample[-1]
 
         for line in sample:
-        	values = line.split()
-        	values = map(int, values)
+            values = line.split()
+            values = map(int, values)
 
-        	# print "SIZE: ", len(values)
+            # print "SIZE: ", len(values)
 
-        	# print "t val 0: ", values[0]
-        	# print "v val 1: ", values[1]        	
+            # print "t val 0: ", values[0]
+            # print "v val 1: ", values[1]          
 
-        	# append if there are both values, otherwise it breaks
-        	if len(values) == 2:
-	        	t.append(values[0])
-	        	v.append(values[1])
+            # append if there are both values, otherwise it breaks
+            if len(values) == 2:
+                t.append(values[0])
+                v.append(values[1])
 
-        	# if values[0] and values[1]:
-        	# 	t.append(values[0])
-        	# 	v.append(values[1])
+            # if values[0] and values[1]:
+            #   t.append(values[0])
+            #   v.append(values[1])
 
         vSmooth = gaussSmooth(v);
 
@@ -106,7 +113,7 @@ def arduinoRead():
         status = 0 #0: not a good pulse. 1: good pulse.
 
         if vStd > stdThresholdLow and vStd < stdThresholdHigh and bpm > 20 and ibi < 3000:
-        	status = 1
+            status = 1
 
         print "SAMPLE BPM: ", bpm
         print "PULSE STATUS: ", status
@@ -168,42 +175,43 @@ def calibrate():
 
 
 def maxima(vals):
-	size = len(vals)
-	maxVals = []
-	lastVal = 0
-	currVal = 0
-	incr = 0 # 0 is decr (default), 1 is incr, 2 is flat (currently just using 1)
-	flat = 0
+    size = len(vals)
+    maxVals = []
+    lastVal = 0
+    currVal = 0
+    incr = 0 # 0 is decr (default), 1 is incr, 2 is flat (currently just using 1)
+    flat = 0
 
-	for i in range(size):
-		currVal = vals[i]
+    for i in range(size):
+        currVal = vals[i]
 
-		if i != 0:
-			lastVal = vals[i-1]
-			currVal = vals[i]
-			rate = currVal - lastVal
-			localIncr = 0
+        if i != 0:
+            lastVal = vals[i-1]
+            currVal = vals[i]
+            rate = currVal - lastVal
+            localIncr = 0
 
-			if rate == 0:
-				flat = 1
-			elif rate < 0:
-				localIncr = 0
-				flat = 0
-			elif rate > 0:
-				flat = 0
-				localIncr = 1
+            if rate == 0:
+                flat = 1
+            elif rate < 0:
+                localIncr = 0
+                flat = 0
+            elif rate > 0:
+                flat = 0
+                localIncr = 1
 
-			if localIncr == 0 and incr == 1 and flat == 0:
-				maxVals.append(i-1)
-				incr = localIncr
-			elif localIncr == 0 and incr == 1 and flat == 1:
-				incr = incr
-			else:
-				incr = localIncr
+            if localIncr == 0 and incr == 1 and flat == 0:
+                maxVals.append(i-1)
+                incr = localIncr
+            elif localIncr == 0 and incr == 1 and flat == 1:
+                incr = incr
+            else:
+                incr = localIncr
 
-	return maxVals
+    return maxVals
 
 def gaussSmooth(vals):
+    global smoothStd
     numVals = len(vals)
 
     if numVals == 0:
@@ -211,10 +219,15 @@ def gaussSmooth(vals):
 
     print "number of values: ", numVals
 
+    print type(vals)
     print "########VALUES#########\n", vals
 
-    b = gaussian(numVals, 2)
+    b = gaussian(numVals, smoothStd)
     smoothVals = filters.convolve1d(vals, b/b.sum())
+    
+    print type(smoothVals)
+    print "########SMOOTH VALUES#########\n", list(smoothVals)
+
     return smoothVals
 
 def sampleStats(maximaIndexes, times):
@@ -246,7 +259,7 @@ class CalibrateThread(Thread):
         self.start()
 
     def run(self):
-        arduino = serial.Serial('/dev/tty.usbmodem1421',115200)
+        arduino = serial.Serial(arduinoPort,115200)
 
         statusCount = 0
         calibrateBPM = []
@@ -317,7 +330,7 @@ class CalibrateThread(Thread):
 
             for line in sample:
                 delayInterval += delayIncrement
-                print "Arduino Values: ", line
+                # print "Arduino Values: ", line
 
                 try:
                     t.append(delayInterval)
@@ -344,6 +357,16 @@ class CalibrateThread(Thread):
                 status = 1
                 statusCount += 1
             else:
+                status = 0
+                statusCount = 0
+
+            global smoothStd
+            global bpmThreshold
+
+            if bpm > bpmThreshold and smoothStd < 5:
+                print "incrementing smooth std from ", smoothStd, " to ", smoothStd + 1
+                smoothStd += 1
+                status = 0
                 statusCount = 0
 
             # if statusCount == 15:
@@ -403,7 +426,7 @@ class BPMThread(Thread):
         self.start()
 
     def run(self):
-        arduino = serial.Serial('/dev/tty.usbmodem1421',115200)
+        arduino = serial.Serial(arduinoPort,115200)
         fullStats = [[],[],[],[],[], []] #cols: run time, epoch time, bpm, ibi, status (0 no pulse, 1 pulse)
         print getSessionDir() + 'data.txt' 
         writeFile = open( getSessionDir() + 'data.txt', 'w' )
@@ -513,7 +536,7 @@ class BPMThread(Thread):
             if numIssues > 4:
                 arduino.close()
                 time.sleep(2)
-                arduino = serial.Serial('/dev/tty.usbmodem1421',115200)
+                arduino = serial.Serial(arduinoPort,115200)
                 time.sleep(2)
 
     def abort(self):
@@ -521,7 +544,7 @@ class BPMThread(Thread):
 
 
 # def bpmRun():
-#     arduino = serial.Serial('/dev/tty.usbmodem1421',115200)
+#     arduino = serial.Serial(arduinoPort,115200)
 #     fullStats = [[],[],[],[],[], []] #cols: run time, epoch time, bpm, ibi, status (0 no pulse, 1 pulse)
 #     writeFile = open( 'writefile.txt', 'w' )
 #     BPMThread(self)
