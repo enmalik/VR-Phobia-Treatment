@@ -16,7 +16,7 @@ On Movies Tab, CHANGE THE FOLDER TO THE EXTERNAL HDD. ex. "F:\Videos". Sometimes
 
 Ignore the "Screenshots" tab.
 
-3) Psychologist Interface/pimain.py
+4) Psychologist Interface/pimain.py
 
 MAKE SURE THE FOLLOWING THREE VARIABLES AT THE BEGINNING OF THE FILE ARE CORRECT:
 
